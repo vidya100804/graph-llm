@@ -1,108 +1,155 @@
-# Dodge AI — SAP Order to Cash Graph Explorer
+# Dodge AI - SAP Order to Cash Graph Explorer
 
-A context graph system with LLM-powered query interface for SAP Order-to-Cash (O2C) data.
+A graph-based SAP Order-to-Cash (O2C) explorer with a React frontend, Flask backend, SQLite data processing, and OpenRouter-powered natural language querying.
 
-## Live Demo
-Deploy `index.html` to any static host (GitHub Pages, Netlify, Vercel).
+## Repository Structure
+
+- `src/` - top-level source map for reviewers and collaborators
+- `frontend/` - React application source and build tooling
+- `backend/` - Flask API, SQLite-backed query engine, and dataset import scripts
+- `sessions/` - project session notes and handoff artifacts
+- `README.md` - setup, architecture, and deployment instructions
+
+## Setup Instructions
+
+### Prerequisites
+
+- Node.js 18+
+- Python 3.10+
+- An OpenRouter API key
+
+### Frontend setup
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+The React app runs on `http://localhost:3000` and proxies API calls to the Flask backend.
+
+### Backend setup
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Set the required environment variables before starting the server:
+
+```powershell
+$env:OPENROUTER_API_KEY="your_openrouter_key"
+$env:OPENROUTER_MODEL="openai/gpt-4o-mini"
+$env:LLM_PROVIDER="openrouter"
+python app.py
+```
+
+The Flask API runs on `http://localhost:5000`.
+
+### Full local run
+
+Open two terminals:
+
+```bash
+cd backend
+python app.py
+```
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+### Optional environment variables
+
+- `OPENROUTER_API_KEY` - required for OpenRouter access
+- `OPENROUTER_MODEL` - defaults to `openai/gpt-4o-mini`
+- `OPENROUTER_APP_NAME` - defaults to `Dodge AI O2C Explorer`
+- `OPENROUTER_SITE_URL` - defaults to `http://localhost:5000`
+- `LLM_PROVIDER` - set to `openrouter` to force OpenRouter
+- `GROQ_API_KEY` - optional fallback provider
 
 ## Architecture
 
 ### Data Layer
-- **Storage**: SQLite (Python build) + embedded JSON (browser runtime)
-- **Dataset**: SAP O2C JSONL files → normalized into 11 relational tables
-- **Graph**: D3.js force-directed graph with 180 nodes, 50 edges across 5 entity types
+
+- Storage: SQLite (Python build) plus embedded JSON (browser runtime)
+- Dataset: SAP O2C JSONL files normalized into relational tables
+- Graph: D3 force-directed graph across core O2C entities
 
 ### Graph Model
-```
-SalesOrder ──HAS_DELIVERY──► Delivery
-SalesOrder ──HAS_BILLING───► BillingDocument ──JOURNAL_ENTRY──► JournalEntry
-                                              ──PAID_BY────────► Payment
+
+```text
+SalesOrder --HAS_DELIVERY--> Delivery
+SalesOrder --HAS_BILLING--> BillingDocument --JOURNAL_ENTRY--> JournalEntry
+BillingDocument --PAID_BY--> Payment
 ```
 
-**Nodes**: SalesOrder, Delivery, Billing, JournalEntry, Payment
-**Edges**: derived from foreign key relationships in SAP data
+Nodes include SalesOrder, Delivery, Billing, JournalEntry, and Payment.
 
 ### LLM Integration
-- **Provider**: OpenRouter or Groq
-- **Strategy**: Hybrid approach
-  1. Pattern-based built-in engine handles common O2C queries deterministically
-  2. Groq LLM enriches/validates answers with natural language
-  3. Falls back gracefully if no API key
+
+- Provider: OpenRouter (primary), with optional Groq fallback
+- Strategy:
+  1. Pattern-based logic handles common O2C queries deterministically
+  2. OpenRouter enriches and validates responses in natural language
+  3. The app falls back gracefully if no API key is provided
 
 ### Prompting Strategy
-- System prompt includes full schema + entity relationships + key foreign keys
-- User message includes data context (pre-computed results) to ground LLM response
-- Temperature=0.1 for consistent factual answers
-- Max 300 tokens to keep responses concise
+
+- System prompt includes schema, relationships, and important foreign keys
+- User prompts are grounded with pre-computed data context
+- Low temperature is used for consistent factual answers
 
 ### Guardrails
-- Domain keyword whitelist (order, billing, payment, delivery, SAP, etc.)
-- Off-topic regex patterns (weather, sports, celebrities, math equations)
-- SQL injection protection: only SELECT queries allowed in backend version
-- LLM constrained to dataset domain via system prompt
-- Exact response string for off-topic: "This system is designed to answer questions related to the SAP Order-to-Cash dataset only."
 
-## Deployment (Single File)
-```bash
-# Option 1: GitHub Pages
-git init && git add . && git commit -m "init"
-git push to GitHub → enable Pages → done
+- Domain keyword whitelist for SAP O2C concepts
+- Off-topic blocking for unrelated questions
+- Backend only permits safe `SELECT` query generation
+- Responses are constrained to the imported dataset domain
 
-# Option 2: Netlify
-drag index.html to netlify.com/drop
+## Deployment
 
-# Option 3: Python local server
-python3 -m http.server 8080
-```
+### Static single-file demo
 
-## Backend Version (Flask)
+Deploy `index.html` to any static host such as GitHub Pages, Netlify, or Vercel.
+
+### Backend version
+
 ```bash
 cd backend
-pip install flask flask-cors requests
+pip install -r requirements.txt
 OPENROUTER_API_KEY=your_key OPENROUTER_MODEL=openai/gpt-4o-mini python app.py
-
-# Or with Groq
-GROQ_API_KEY=your_key python app.py
 ```
 
-## Full-Stack Deploy On Render
-This repo is prepared for a single-service deployment on Render using the included `Dockerfile` and `render.yaml`.
+### Render deployment
 
-Steps:
-1. Push this repo to GitHub.
-2. In Render, choose `New +` -> `Blueprint` or `Web Service`.
-3. Connect this GitHub repo.
-4. If using `Blueprint`, Render will detect `render.yaml` automatically.
-5. Add environment variables if needed:
-   - `OPENROUTER_API_KEY`
-   - `OPENROUTER_MODEL`
-   - `GROQ_API_KEY`
-   - `LLM_PROVIDER`
-6. Deploy.
+This repository includes `Dockerfile` and `render.yaml` for single-service deployment on Render.
 
-The deployed app serves the built React frontend from Flask, so you only need one web service.
-
-## Database Choice: SQLite + JSON
-- SQLite for build-time data processing (Python)
-- Embedded JSON in HTML for zero-backend browser deployment
-- Tradeoff: larger file size vs zero infrastructure requirement
+1. Push this repository to GitHub.
+2. Create a new Render Blueprint or Web Service.
+3. Connect the GitHub repository.
+4. Add environment variables such as `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`, and `LLM_PROVIDER`.
+5. Deploy.
 
 ## Key Features
-- Interactive D3 force-directed graph with zoom/pan/drag
-- Node inspector with full metadata on click
+
+- Interactive graph with zoom, pan, and drag
+- Node inspector with metadata
 - Natural language chat interface
-- Graph node highlighting based on query results
-- Built-in query engine for common O2C patterns
-- Full guardrail system blocking off-topic queries
-- Responsive data table for query results
+- Query-driven graph highlighting
+- Guardrails for off-topic and unsafe requests
+- Responsive query result views
 
 ## Dataset
-SAP Order-to-Cash JSONL dataset with:
-- 100 Sales Orders | 86 Deliveries | 163 Billing Documents
-- 123 Journal Entries | 120 Payments | 69 Products
+
+SAP Order-to-Cash JSONL dataset with sales orders, deliveries, billing documents, journal entries, payments, and products.
 
 ## Tech Stack
-- Frontend: Vanilla JS + D3.js v7
-- Backend: Flask + SQLite (Python)
-- LLM: OpenRouter or Groq
-- No build tools required for single-file version
+
+- Frontend: React, D3.js
+- Backend: Flask, SQLite
+- LLM provider: OpenRouter
