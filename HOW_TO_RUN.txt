@@ -1,0 +1,109 @@
+# ============================================
+#  HOW TO RUN — Dodge AI O2C Graph Explorer
+# ============================================
+
+## ⚡ FASTEST — Open Directly in Browser (No Setup)
+1. Just open `index.html` in Chrome or Firefox
+2. The full graph loads immediately — no server needed!
+3. Get an OpenRouter key at https://openrouter.ai/keys or a Groq key at https://console.groq.com
+4. Choose the provider in the yellow bar at the top of the app and paste the key
+5. Start asking questions!
+
+---
+
+## 🖥️ Run with Backend (Full Flask Server)
+
+### Prerequisites
+- Python 3.8+
+- Node.js 16+ (only if running React version)
+
+### Step 1 — Get an LLM API key
+Option A: OpenRouter → https://openrouter.ai/keys → Create key
+Option B: Groq → https://console.groq.com → API Keys → Create key
+
+### Step 2 — Install & Run Backend
+```bash
+cd backend
+pip install -r requirements.txt
+set OPENROUTER_API_KEY=your_openrouter_key_here
+set OPENROUTER_MODEL=openai/gpt-4o-mini
+python app.py
+
+# Or use Groq instead
+set GROQ_API_KEY=your_groq_key_here
+python app.py
+
+# Mac/Linux
+export OPENROUTER_API_KEY=your_openrouter_key_here
+export OPENROUTER_MODEL=openai/gpt-4o-mini
+python app.py
+```
+Backend runs at: http://localhost:5000
+
+### Step 3 — Open the App
+Option A (easiest): Just open index.html in browser
+Option B (React dev): 
+  cd frontend
+  npm install
+  npm start
+  Open http://localhost:3000
+
+---
+
+## 🌐 Deploy as Live Demo Link
+
+### Option A — Netlify Drop (2 minutes, FREE)
+1. Go to https://netlify.com/drop
+2. Drag and drop `index.html` onto the page
+3. You get a public URL instantly!
+
+### Option B — GitHub Pages (FREE)
+1. Create a new GitHub repo
+2. Upload all files
+3. Settings → Pages → Deploy from main branch
+4. Your URL: https://yourusername.github.io/repo-name
+
+---
+
+## 📁 Project Structure
+```
+dodge-ai-FINAL/
+├── index.html              ← ⭐ MAIN APP (open this!)
+├── README.md               ← Architecture decisions
+├── HOW_TO_RUN.txt          ← This file
+├── start_backend.sh        ← Quick start script (Mac/Linux)
+├── backend/
+│   ├── app.py              ← Flask API server
+│   ├── o2c.db              ← SQLite database (all SAP data)
+│   └── requirements.txt    ← Python dependencies
+├── frontend/
+│   ├── src/App.js          ← React component
+│   ├── src/index.js        ← React entry point
+│   ├── public/index.html   ← HTML template
+│   └── package.json        ← npm dependencies
+└── sessions/
+    └── claude_session.md   ← AI coding session logs
+```
+
+---
+
+## 💬 Example Queries to Try
+- "Which products have the highest number of billing documents?"
+- "Show sales orders delivered but not billed"
+- "Trace flow for billing document 91150187"
+- "Find orders with broken or incomplete flows"
+- "What is the total billed amount across all orders?"
+- "How many deliveries are there?"
+- "List all products"
+
+---
+
+## 🔧 Tech Stack
+- Frontend: Vanilla JS + D3.js v7 (single HTML file)
+- Backend: Flask + SQLite (Python)
+- LLM: Groq free tier (llama3-8b-8192)
+- No build tools required for index.html version
+
+
+cd c:\Users\91709\Downloads\dodge-ai-FINAL\dodge-ai-FINAL\backend
+C:\Users\91709\AppData\Local\Programs\Python\Python310\python.exe app.py
