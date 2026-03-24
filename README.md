@@ -26,7 +26,7 @@ SalesOrder ──HAS_BILLING───► BillingDocument ──JOURNAL_ENTRY─�
 - **Provider**: OpenRouter or Groq
 - **Strategy**: Hybrid approach
   1. Pattern-based built-in engine handles common O2C queries deterministically
-  2. Groq LLM enriches/validates answers with natural language
+  2. OPENROUTER LLM enriches/validates answers with natural language
   3. Falls back gracefully if no API key
 
 ### Prompting Strategy
