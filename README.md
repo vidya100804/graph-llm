@@ -65,6 +65,23 @@ OPENROUTER_API_KEY=your_key OPENROUTER_MODEL=openai/gpt-4o-mini python app.py
 GROQ_API_KEY=your_key python app.py
 ```
 
+## Full-Stack Deploy On Render
+This repo is prepared for a single-service deployment on Render using the included `Dockerfile` and `render.yaml`.
+
+Steps:
+1. Push this repo to GitHub.
+2. In Render, choose `New +` -> `Blueprint` or `Web Service`.
+3. Connect this GitHub repo.
+4. If using `Blueprint`, Render will detect `render.yaml` automatically.
+5. Add environment variables if needed:
+   - `OPENROUTER_API_KEY`
+   - `OPENROUTER_MODEL`
+   - `GROQ_API_KEY`
+   - `LLM_PROVIDER`
+6. Deploy.
+
+The deployed app serves the built React frontend from Flask, so you only need one web service.
+
 ## Database Choice: SQLite + JSON
 - SQLite for build-time data processing (Python)
 - Embedded JSON in HTML for zero-backend browser deployment
